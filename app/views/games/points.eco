@@ -1,0 +1,7 @@
+<ul id="points">
+<% for point in @points: %>
+  <li>
+    <%= point %>
+  </li>
+<% end %>
+</ul>

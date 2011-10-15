@@ -1,0 +1,4 @@
+<div class="item <%= 'active' if @active %>">
+  <%= @name %>
+  <span class="points"><%= @points %></span>
+</div>
