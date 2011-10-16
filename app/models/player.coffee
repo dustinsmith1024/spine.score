@@ -7,12 +7,17 @@ class Player extends Spine.Model
 
   @extend Spine.Model.Local
 
-  @default: -> new @(name: 'Namer...')
+  @default: -> new @(name: 'Namer...', points: 0)
 
   activate: ->
+    p.deactivate() for p in @.game().players().all()
     @active = true
+    @.save()
+    @
 
   deactivate: ->
     @active = false
+    @.save()
+    @
 
 module.exports = Player

@@ -1,3 +1,20 @@
 <form>
-  <input type="text" name="typer" placeholder="Type--">
+  <label>Your Name: 
+    <input type="text" name="owner" placeholder="First Name" />
+  </label>
+  <br/>
+  <label>Game Type:
+    <select name="typer">
+      <option value="Basic">Basic</option>
+      <option value="Cribbage">Cribbage</option>
+      <option value="Pitch">Pitch</option>
+      <option value="Rummy">Rummy</option>
+      <option value="Scrabble">Srabble</option>
+    </select>
+  </label>
+  <br/>
+  <label>Point Max (0 is none):
+    <input type="number" name="point_limit" placeholder="0" />
+  </label>
+  <input type="submit" />
 </form>

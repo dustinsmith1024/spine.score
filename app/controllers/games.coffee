@@ -36,7 +36,7 @@ class PlayersList extends Panel
     'tap #new': 'new'
     'tap #points li': 'score'
 
-  title: 'GameTime!'
+  title: 'Game'
 
   className: 'players list listView'
 
@@ -52,7 +52,7 @@ class PlayersList extends Panel
     if @game
       @players = @game.players().all()
       if @players.length is 0
-        @game.players().create(name: 'Dustin', points: 0)
+        @game.players().create(name: @game.owner, points: 0)
         @players = @game.players().all()
 
       @html require('views/players/item')(@players)
@@ -64,12 +64,12 @@ class PlayersList extends Panel
     @render()
 
   new: ->
-    console.log('new')
+    @navigate('/games/'+@game.id+'/add_player', trans: 'right')
 
   score: (e) =>
     value = Number($(e.target).text())
     @player.points += value
-    @player.save()       
+    @player.save() 
 
   click: (e) =>
     @player = $(e.target).item()
@@ -78,12 +78,52 @@ class PlayersList extends Panel
    back: ->
     @navigate('/games', trans: 'left')
 
-class GamesCreate extends Panel
+class PlayerCreate extends Panel
   elements:
-    'input': 'input'
+    'input[type="text"]': 'input'
+    'input[type="submit"]': 'submitButton'
 
   events:
     'submit form': 'submit'
+    'click input[type="submit"]': 'submit'
+
+  className: 'players createView'
+
+  constructor: ->
+    super
+    @addButton('Cancel', @back)
+    @addButton('Add', @submit).addClass('right')
+    @active (params) ->
+      @change(params.id)
+
+  render: ->
+    @html require('views/players/form')()
+
+  submit: (e) =>
+    e.preventDefault()
+    Player.create(name: @input.val(), points: 0, game: @game)
+    @navigate('/games', @game.id, trans: 'left')
+
+  back: ->
+    @navigate('/games', @game.id, trans: 'left')
+
+  change: (id) ->
+    @game = Game.find(id)
+    @render()
+
+  deactivate: ->
+    super
+    @input.blur()
+
+class GamesCreate extends Panel
+  elements:
+    'input[name="owner"]': 'ownerEl'
+    'select[name="typer"]': 'typeEl'
+    'input[name="point_limit"]': 'pointEl'
+
+  events:
+    'submit form': 'submit'
+    'click input[type="submit"]': 'submit'
 
   className: 'games createView'
 
@@ -98,9 +138,9 @@ class GamesCreate extends Panel
 
   submit: (e) ->
     e.preventDefault()
-    game = Game.create(typer: @input.val())
+    game = Game.create(typer: @typeEl.val(), owner: @ownerEl.val(), point_limit: @pointEl.val())
     if game
-      @input.val('')
+      #@input.val('')
       @navigate('/games', game.id, trans: 'left')
 
   back: ->
@@ -108,7 +148,7 @@ class GamesCreate extends Panel
 
   deactivate: ->
     super
-    @input.blur()
+    @ownerEl.blur()
 
 class Games extends Spine.Controller
   constructor: ->
@@ -117,10 +157,12 @@ class Games extends Spine.Controller
     @list    = new GamesList
     @show    = new PlayersList
     @create  = new GamesCreate
+    @add_player = new PlayerCreate
     @routes
-      '/games':        (params) -> @list.active(params)
-      '/games/:id':    (params) -> @show.active(params)
-      '/games/create': (params) -> @create.active(params)
+      '/games':                   (params) -> @list.active(params)
+      '/games/:id':               (params) -> @show.active(params)
+      '/games/:id/add_player':    (params) -> @add_player.active(params)
+      '/games/create':            (params) -> @create.active(params)
 
     Game.fetch()
     Player.fetch()

@@ -10,7 +10,6 @@ class App extends Stage.Global
     super
     @games = new Games
 
-    console.log("loading index")
     Spine.Route.setup(shim:true)
     @navigate '/games'
 
